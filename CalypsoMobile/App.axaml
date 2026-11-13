@@ -1,0 +1,39 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CalypsoMobile.App"
+             RequestedThemeVariant="Dark">
+  <Application.Styles>
+    <FluentTheme />
+    <!-- Stiluri Industriale Calypso Mobile -->
+    <Style Selector="Button.calypsoPrimary">
+      <Setter Property="Background" Value="#FF6F00" />
+      <Setter Property="Foreground" Value="#121417" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="MinHeight" Value="54" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.calypsoSecondary">
+      <Setter Property="Background" Value="#262B34" />
+      <Setter Property="Foreground" Value="#F3F4F6" />
+      <Setter Property="BorderBrush" Value="#374151" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="MinHeight" Value="50" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.calypsoCard">
+      <Setter Property="Background" Value="#1E2229" />
+      <Setter Property="BorderBrush" Value="#374151" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="14" />
+    </Style>
+  </Application.Styles>
+</Application>

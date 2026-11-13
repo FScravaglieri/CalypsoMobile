@@ -1,0 +1,319 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:CalypsoMobile.ViewModels"
+             xmlns:views="clr-namespace:CalypsoMobile.Views"
+             x:Class="CalypsoMobile.Views.MainView"
+             x:DataType="vm:MainViewModel"
+             Background="#121417">
+
+  <UserControl.Resources>
+    <views:EqualityConverter x:Key="EqConv" />
+  </UserControl.Resources>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- HEADER CALYPSO -->
+    <Border Grid.Row="0" Background="#181B20" BorderBrush="#2D333B" BorderThickness="0,0,0,1" Padding="14,12">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <!-- Logo bulă portocalie Calypso -->
+        <Border Background="#FF6F00" CornerRadius="10,10,2,10" Width="36" Height="36" VerticalAlignment="Center">
+          <TextBlock Text="C" Foreground="White" FontWeight="Black" FontSize="22"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+          <TextBlock Text="CALYPSO" Foreground="#F3F4F6" FontWeight="Bold" FontSize="19" LetterSpacing="1" />
+          <TextBlock Text="MOBILE MAINTENANCE" Foreground="#FF6F00" FontWeight="SemiBold" FontSize="11" />
+        </StackPanel>
+        <TextBlock Grid.Column="2" Text="{Binding StatusBanner}" Foreground="#10B981"
+                   FontSize="12" VerticalAlignment="Center" MaxWidth="140" TextWrapping="Wrap" />
+      </Grid>
+    </Border>
+
+    <!-- ZONA DE CONȚINUT DINAMIC -->
+    <Grid Grid.Row="1">
+
+      <!-- ========================================================= -->
+      <!-- ECRAN 1: COMENZI                                          -->
+      <!-- ========================================================= -->
+      <Grid RowDefinitions="Auto,Auto,*" Margin="14"
+            IsVisible="{Binding CurrentScreen, Converter={StaticResource EqConv}, ConverterParameter=Orders}">
+        <TextBox Grid.Row="0" Watermark="🔍 Caută comandă (#1042) sau utilaj..."
+                 Text="{Binding SearchQuery}" MinHeight="48" FontSize="15"
+                 Background="#1E2229" Foreground="#F3F4F6" CornerRadius="10" Margin="0,0,0,10" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+          <Button Content="Toate" Command="{Binding SetFilterCommand}" CommandParameter="Toate" Classes="calypsoSecondary" MinHeight="40" Padding="14,0" />
+          <Button Content="🔴 Urgente" Command="{Binding SetFilterCommand}" CommandParameter="Urgente" Classes="calypsoSecondary" MinHeight="40" Padding="14,0" />
+          <Button Content="⏳ În lucru" Command="{Binding SetFilterCommand}" CommandParameter="InLucru" Classes="calypsoSecondary" MinHeight="40" Padding="14,0" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="2">
+          <ItemsControl ItemsSource="{Binding FilteredOrders}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="calypsoCard" Margin="0,0,0,12">
+                  <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Text="{Binding Id, StringFormat='COMANDĂ {0}'}" Foreground="#F3F4F6" FontWeight="Bold" FontSize="18" />
+                      <Border Grid.Column="1" Background="#2A1C1C" BorderBrush="{Binding PriorityColor}" BorderThickness="1" CornerRadius="6" Padding="8,3">
+                        <TextBlock Text="{Binding Priority}" Foreground="{Binding PriorityColor}" FontWeight="Bold" FontSize="12" />
+                      </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding MachineName, StringFormat='Utilaj: {0}'}" Foreground="#F3F4F6" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Location, StringFormat='Locație: {0}'}" Foreground="#9CA3AF" FontSize="14" />
+                    <TextBlock Text="{Binding ProgressText, StringFormat='Progres: {0}'}" Foreground="#10B981" FontSize="14" />
+                    <Button Content="DESCHIDE OPERAȚII  >"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenOrderCommand}"
+                            CommandParameter="{Binding}"
+                            Classes="calypsoPrimary" Margin="0,6,0,0" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+
+      <!-- ========================================================= -->
+      <!-- ECRAN 2: OPERAȚII                                         -->
+      <!-- ========================================================= -->
+      <Grid RowDefinitions="Auto,Auto,*" Margin="14"
+            IsVisible="{Binding CurrentScreen, Converter={StaticResource EqConv}, ConverterParameter=Operations}">
+        <Button Grid.Row="0" Content="← Înapoi la Comenzi" Command="{Binding BackToOrdersCommand}"
+                Classes="calypsoSecondary" HorizontalAlignment="Left" Padding="14,0" Margin="0,0,0,12" />
+
+        <Border Grid.Row="1" Classes="calypsoCard" Margin="0,0,0,12">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding SelectedOrder.Id, StringFormat='COMANDĂ {0}'}" Foreground="#FF6F00" FontWeight="Bold" FontSize="18" />
+            <TextBlock Text="{Binding SelectedOrder.MachineName}" Foreground="#F3F4F6" FontSize="16" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding SelectedOrder.Location}" Foreground="#9CA3AF" FontSize="14" />
+          </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="2">
+          <ItemsControl ItemsSource="{Binding SelectedOrder.Operations}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="calypsoCard" Margin="0,0,0,12">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding StatusLabel}" Foreground="#10B981" FontWeight="Bold" FontSize="13" />
+                    <TextBlock Text="{Binding Title}" Foreground="#F3F4F6" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <Button Content="DESCHIDE ACTIVITATE  >"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenOperationCommand}"
+                            CommandParameter="{Binding}"
+                            Classes="calypsoPrimary" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+
+      <!-- ========================================================= -->
+      <!-- ECRAN 3: ACTIVITĂȚI                                       -->
+      <!-- ========================================================= -->
+      <ScrollViewer Margin="14"
+                    IsVisible="{Binding CurrentScreen, Converter={StaticResource EqConv}, ConverterParameter=Activity}">
+        <StackPanel Spacing="12">
+          <Button Content="← Înapoi la Operații" Command="{Binding BackToOperationsCommand}"
+                  Classes="calypsoSecondary" HorizontalAlignment="Left" Padding="14,0" />
+
+          <Border Classes="calypsoCard">
+            <StackPanel Spacing="6">
+              <TextBlock Text="{Binding SelectedOperation.Title}" Foreground="#FF6F00" FontWeight="Bold" FontSize="14" />
+              <TextBlock Text="{Binding SelectedActivity.Title}" Foreground="#F3F4F6" FontWeight="Bold" FontSize="17" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+
+          <!-- Pontaj Timp -->
+          <Border Classes="calypsoCard">
+            <StackPanel Spacing="10">
+              <TextBlock Text="{Binding SelectedActivity.ElapsedTime, StringFormat='⏱️ PONTAJ TIMP: {0:hh\:mm\:ss}'}"
+                         Foreground="#F3F4F6" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" />
+              <Grid ColumnDefinitions="*,*,*" >
+                <Button Grid.Column="0" Content="▶ START" Command="{Binding ToggleTimerCommand}" CommandParameter="START" Classes="calypsoSecondary" />
+                <Button Grid.Column="1" Content="⏸ PAUZĂ" Command="{Binding ToggleTimerCommand}" CommandParameter="PAUSE" Classes="calypsoSecondary" />
+                <Button Grid.Column="2" Content="⏹ STOP" Command="{Binding ToggleTimerCommand}" CommandParameter="STOP" Classes="calypsoSecondary" />
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <!-- Documente & Piese -->
+          <Grid ColumnDefinitions="*,*" >
+            <Button Grid.Column="0" Content="📄 Documente Suport" Command="{Binding OpenDocumentsCommand}" Classes="calypsoSecondary" />
+            <Button Grid.Column="1" Content="⚙️ Piese de Schimb" Command="{Binding OpenSparePartsCommand}" Classes="calypsoSecondary" />
+          </Grid>
+
+          <!-- Gestionare Note -->
+          <Border Classes="calypsoCard">
+            <StackPanel Spacing="8">
+              <TextBlock Text="📝 GESTIONARE NOTE OPERATOR" Foreground="#F3F4F6" FontWeight="Bold" FontSize="15" />
+              <TextBlock Text="{Binding SelectedActivity.Notes}" Foreground="#9CA3AF" FontSize="14" TextWrapping="Wrap" />
+              <Grid ColumnDefinitions="*,Auto" >
+                <TextBox Grid.Column="0" Watermark="Scrie observație..." Text="{Binding NewNoteText}"
+                         MinHeight="48" Background="#121417" Foreground="#F3F4F6" />
+                <Button Grid.Column="1" Content="Adaugă" Command="{Binding AddNoteCommand}" Classes="calypsoSecondary" Padding="14,0" />
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <!-- Închidere Activitate -->
+          <Button Content="✅ ÎNCHIDE ACTIVITATEA" Command="{Binding RequestCloseActivityCommand}" Classes="calypsoPrimary" Margin="0,4,0,20" />
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- ========================================================= -->
+      <!-- ECRAN 4: PIESE DE SCHIMB                                  -->
+      <!-- ========================================================= -->
+      <Grid RowDefinitions="Auto,*,Auto" Margin="14"
+            IsVisible="{Binding CurrentScreen, Converter={StaticResource EqConv}, ConverterParameter=SpareParts}">
+        <Button Grid.Row="0" Content="← Înapoi la Activitate" Command="{Binding BackToActivityCommand}"
+                Classes="calypsoSecondary" HorizontalAlignment="Left" Padding="14,0" Margin="0,0,0,12" />
+
+        <ScrollViewer Grid.Row="1">
+          <ItemsControl ItemsSource="{Binding SelectedActivity.SpareParts}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="calypsoCard" Margin="0,0,0,12">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Name}" Foreground="#F3F4F6" FontWeight="Bold" FontSize="16" />
+                    <TextBlock Foreground="#9CA3AF" FontSize="14">
+                      <Run Text="Cod: " />
+                      <Run Text="{Binding Code}" />
+                      <Run Text=" | Stoc disponibil: " />
+                      <Run Text="{Binding StockAvailable}" />
+                    </TextBlock>
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4,0,0">
+                      <Button Grid.Column="0" Content="-" Width="54" Height="54" FontSize="22" FontWeight="Bold"
+                              Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).DecrementPartCommand}"
+                              CommandParameter="{Binding}" Classes="calypsoSecondary" />
+                      <TextBlock Grid.Column="1" Text="{Binding UsedQuantity}" FontSize="22" FontWeight="Bold"
+                                 Foreground="#FF6F00" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Button Grid.Column="2" Content="+" Width="54" Height="54" FontSize="22" FontWeight="Bold"
+                              Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).IncrementPartCommand}"
+                              CommandParameter="{Binding}" Classes="calypsoSecondary" />
+                    </Grid>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Content="💾 SALVEAZĂ CONSUM PIESE" Command="{Binding SaveSparePartsCommand}" Classes="calypsoPrimary" />
+      </Grid>
+
+      <!-- ========================================================= -->
+      <!-- ECRAN 5: DOCUMENTE DE SUPORT                              -->
+      <!-- ========================================================= -->
+      <Grid RowDefinitions="Auto,*" Margin="14"
+            IsVisible="{Binding CurrentScreen, Converter={StaticResource EqConv}, ConverterParameter=Documents}">
+        <Button Grid.Row="0" Content="← Înapoi la Activitate" Command="{Binding BackToActivityCommand}"
+                Classes="calypsoSecondary" HorizontalAlignment="Left" Padding="14,0" Margin="0,0,0,12" />
+
+        <ScrollViewer Grid.Row="1">
+          <ItemsControl ItemsSource="{Binding SelectedActivity.Documents}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="calypsoCard" Margin="0,0,0,12">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Title}" Foreground="#F3F4F6" FontWeight="Bold" FontSize="16" TextWrapping="Wrap" />
+                    <TextBlock Foreground="#9CA3AF" FontSize="13">
+                      <Run Text="📄 " />
+                      <Run Text="{Binding FileName}" />
+                      <Run Text=" (" />
+                      <Run Text="{Binding FileSize}" />
+                      <Run Text=")" />
+                    </TextBlock>
+                    <Button Content="👁️ DESCHIDE PDF"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenPdfDocumentCommand}"
+                            CommandParameter="{Binding}"
+                            Classes="calypsoPrimary" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+
+      <!-- ========================================================= -->
+      <!-- ECRAN 5B: VIZUALIZATOR PDF                                -->
+      <!-- ========================================================= -->
+      <Grid RowDefinitions="Auto,*" Margin="14"
+            IsVisible="{Binding CurrentScreen, Converter={StaticResource EqConv}, ConverterParameter=PdfViewer}">
+        <Button Grid.Row="0" Content="✕ Închide PDF (Înapoi)" Command="{Binding BackToDocumentsCommand}"
+                Classes="calypsoSecondary" HorizontalAlignment="Left" Padding="14,0" Margin="0,0,0,12" />
+
+        <Border Grid.Row="1" Background="#F3F4F6" CornerRadius="10" Padding="18">
+          <ScrollViewer>
+            <StackPanel Spacing="12">
+              <TextBlock Text="{Binding SelectedDocument.FileName}" Foreground="#FF6F00" FontWeight="Bold" FontSize="14" />
+              <TextBlock Text="{Binding SelectedDocument.Title}" Foreground="#121417" FontWeight="Bold" FontSize="18" TextWrapping="Wrap" />
+              <Separator Background="#D1D5DB" Height="1" />
+              <TextBlock Text="{Binding SelectedDocument.MockPdfContent}" Foreground="#1F2937" FontSize="15" LineHeight="24" TextWrapping="Wrap" />
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+
+      <!-- ========================================================= -->
+      <!-- ECRAN 6: MESAJE                                           -->
+      <!-- ========================================================= -->
+      <Grid RowDefinitions="Auto,*,Auto" Margin="14"
+            IsVisible="{Binding CurrentScreen, Converter={StaticResource EqConv}, ConverterParameter=Messages}">
+        <TextBlock Grid.Row="0" Text="MESAJE DISPECERAT" Foreground="#F3F4F6" FontWeight="Bold" FontSize="18" Margin="0,0,0,10" />
+
+        <ScrollViewer Grid.Row="1">
+          <ItemsControl ItemsSource="{Binding Messages}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="calypsoCard" Margin="0,0,0,10">
+                  <StackPanel Spacing="4">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Text="{Binding Sender}" Foreground="#FF6F00" FontWeight="Bold" FontSize="14" />
+                      <TextBlock Grid.Column="1" Text="{Binding Timestamp}" Foreground="#9CA3AF" FontSize="12" />
+                    </Grid>
+                    <TextBlock Text="{Binding Text}" Foreground="#F3F4F6" FontSize="15" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto"  Margin="0,10,0,0">
+          <TextBox Grid.Column="0" Watermark="Scrie mesaj către dispecer..." Text="{Binding NewMessageText}"
+                   MinHeight="50" Background="#1E2229" Foreground="#F3F4F6" />
+          <Button Grid.Column="1" Content="Trimite ➤" Command="{Binding SendMessageCommand}" Classes="calypsoPrimary" Width="105" />
+        </Grid>
+      </Grid>
+
+      <!-- ========================================================= -->
+      <!-- MODAL CONFIRMARE: ÎNCHIDERE COMANDĂ?                      -->
+      <!-- ========================================================= -->
+      <Border Background="#CC000000" IsVisible="{Binding ShowCloseOrderModal}" Padding="20">
+        <Border Classes="calypsoCard" Background="#1E2229" VerticalAlignment="Center">
+          <StackPanel Spacing="14">
+            <TextBlock Text="Confirmare Închidere" Foreground="#FF6F00" FontWeight="Bold" FontSize="19" />
+            <TextBlock Text="Activitatea a fost marcată ca finalizată. Dorești să închizi și COMANDA curentă?"
+                       Foreground="#F3F4F6" FontSize="16" TextWrapping="Wrap" />
+            <Button Content="Da, închide și Comanda" Command="{Binding ConfirmCloseOrderTooCommand}" Classes="calypsoPrimary" />
+            <Button Content="Nu, doar Activitatea" Command="{Binding ConfirmCloseActivityOnlyCommand}" Classes="calypsoSecondary" />
+          </StackPanel>
+        </Border>
+      </Border>
+
+    </Grid>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <Border Grid.Row="2" Background="#181B20" BorderBrush="#2D333B" BorderThickness="0,1,0,0" Padding="10,8">
+      <Grid ColumnDefinitions="*,*" >
+        <Button Grid.Column="0" Content="📋 Comenzi" Command="{Binding NavigateTabCommand}" CommandParameter="Orders" Classes="calypsoSecondary" />
+        <Button Grid.Column="1" Content="💬 Mesaje" Command="{Binding NavigateTabCommand}" CommandParameter="Messages" Classes="calypsoSecondary" />
+      </Grid>
+    </Border>
+
+  </Grid>
+</UserControl>
